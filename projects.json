@@ -5,8 +5,12 @@
     "city": "北京",
     "type": "知识型商业",
     "year": "2024",
-    "description": "位于海淀区，毗邻圆明园与清华大学，定位为知识生活方式街区。围绕高校人群与文化消费，构建学术氛围与商业活力并存的城市空间。",
-    "image": "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=600&q=80",
+    "description": "位于海淀区，毗邻圆明园与清华大学，定位为知识生活方式街区。围绕高校人群与文化消费，构建学术氛围与商业活力并存的城市空间。项目以「知识即生活」为核心理念，将书店、研讨空间、精品餐饮与创意零售融合为一体，打造北京西北部最具人文气质的商业目的地。",
+    "images": [
+      "https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=1200&q=80",
+      "https://images.unsplash.com/photo-1523908511403-7fc7b25592f4?w=1200&q=80",
+      "https://images.unsplash.com/photo-1481277542470-605612bd2d61?w=1200&q=80"
+    ],
     "lat": 40.0023,
     "lng": 116.3088
   },
@@ -16,8 +20,12 @@
     "city": "北京",
     "type": "文旅策划",
     "year": "2024",
-    "description": "受海淀区宣传部委托，为大西山区域打造整体文旅品牌。以「西山画屏」为母题，提炼「最近的远山」核心主张，构建前山后山双线叙事体系。",
-    "image": "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600&q=80",
+    "description": "受海淀区宣传部委托，为大西山区域打造整体文旅品牌。以「西山画屏」为母题，提炼「最近的远山」核心主张，构建前山后山双线叙事体系。项目涵盖品牌战略、空间叙事、视觉系统及多媒体脚本全链路输出，是塔科玛近年最完整的政府文旅委托项目之一。",
+    "images": [
+      "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1200&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
+      "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&q=80"
+    ],
     "lat": 39.9980,
     "lng": 116.1200
   },
@@ -27,8 +35,12 @@
     "city": "沧州",
     "type": "商业策划",
     "year": "2024",
-    "description": "为信誉楼百货在沧州的新综合体提供商业策划支持，融合零售目的地与企业总部功能，定位京津冀文化旅游新地标，构建「服务型商业中心」新业态。",
-    "image": "https://images.unsplash.com/photo-1555636222-cae831e670b3?w=600&q=80",
+    "description": "为信誉楼百货在沧州的新综合体提供商业策划支持，融合零售目的地与企业总部功能，定位京津冀文化旅游新地标，构建「服务型商业中心」新业态。以「以人为本的商业」为策略核心，突破传统百货模式，引入文化展览、社区服务与体验消费，重新定义河北零售新标杆。",
+    "images": [
+      "https://images.unsplash.com/photo-1555636222-cae831e670b3?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80"
+    ],
     "lat": 38.3045,
     "lng": 116.8387
   },
@@ -38,8 +50,12 @@
     "city": "东莞",
     "type": "文旅策划",
     "year": "2023",
-    "description": "覆盖约11平方公里，5大节点、12个城市产品概念。以潮玩IP为核心驱动，打造面向年轻消费群体的沉浸式文旅目的地，完成竞赛阶段完整提案。",
-    "image": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=600&q=80",
+    "description": "覆盖约11平方公里，5大节点、12个城市产品概念。以潮玩IP为核心驱动，打造面向年轻消费群体的沉浸式文旅目的地，完成竞赛阶段完整提案。联合超级玛特共同打造，将潮玩文化、街头艺术与商业消费深度融合，成为大湾区潮流文化新坐标。",
+    "images": [
+      "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=1200&q=80",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80",
+      "https://images.unsplash.com/photo-1569974498991-d3c12a504f57?w=1200&q=80"
+    ],
     "lat": 23.0430,
     "lng": 113.7633
   },
@@ -49,8 +65,12 @@
     "city": "深圳",
     "type": "品牌策划",
     "year": "2023",
-    "description": "为深港河套科创合作区构建策展思维框架，围绕地缘唯一性、政策资源唯一性、空间体验唯一性三大价值维度，整合A–G七大空间方向，形成差异化品牌定位。",
-    "image": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80",
+    "description": "为深港河套科创合作区构建策展思维框架，围绕地缘唯一性、政策资源唯一性、空间体验唯一性三大价值维度，整合A–G七大空间方向，形成差异化品牌定位。项目由塔科玛团队主导，协同钱坤、刘腾加等核心成员，历时三个月完成全套战略输出。",
+    "images": [
+      "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1200&q=80",
+      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80",
+      "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80"
+    ],
     "lat": 22.5276,
     "lng": 114.0683
   }

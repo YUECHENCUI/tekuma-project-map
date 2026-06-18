@@ -1,383 +1,373 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YOUR STUDIO — 项目地图</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEKUMA — 项目地图</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  :root {
+    --rose: #E8307A;
+    --rose-dim: rgba(232,48,122,0.18);
+    --rose-glow: rgba(232,48,122,0.35);
+    --bg: #0e0e0e;
+    --sidebar-w: 300px;
+    --panel-w: 480px;
+    --text-primary: #f0ece4;
+    --text-secondary: rgba(240,236,228,0.5);
+    --border: rgba(240,236,228,0.08);
+  }
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--text-primary);
+    font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif; }
 
-    body {
-      font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-      background: #0d0d0d;
-      color: #e8e4dc;
-      height: 100vh;
-      overflow: hidden;
-    }
+  /* ── 左侧栏 ── */
+  #sidebar {
+    position:fixed; left:0; top:0; bottom:0; width:var(--sidebar-w);
+    background:rgba(10,10,10,0.97);
+    border-right:1px solid var(--border);
+    z-index:300; display:flex; flex-direction:column; overflow:hidden;
+  }
 
-    /* ── 地图 ── */
-    #map {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-    }
+  #sidebar-head {
+    padding:28px 24px 20px;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
 
-    /* ── 顶部品牌栏 ── */
-    #header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 20px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: linear-gradient(to bottom, rgba(10,10,10,0.85) 0%, transparent 100%);
-      pointer-events: none;
-    }
+  #logo { font-size:22px; font-weight:700; letter-spacing:0.14em; color:var(--text-primary); }
+  #tagline { font-size:10px; letter-spacing:0.2em; color:var(--rose); margin-top:4px; text-transform:uppercase; }
 
-    #brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      pointer-events: auto;
-    }
+  #project-list { flex:1; overflow-y:auto; padding:16px 0; }
+  #project-list::-webkit-scrollbar { width:3px; }
+  #project-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 
-    #logo-mark {
-      width: 36px;
-      height: 36px;
-      border: 1.5px solid rgba(232,228,220,0.5);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      color: #e8e4dc;
-    }
+  .year-group { padding:0 24px; margin-bottom:4px; }
+  .year-label {
+    font-size:10px; letter-spacing:0.14em; color:var(--text-secondary);
+    padding:10px 0 6px; border-bottom:1px solid var(--border);
+    margin-bottom:4px;
+  }
 
-    #brand-name {
-      font-size: 15px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      color: #e8e4dc;
-      text-transform: uppercase;
-    }
+  .list-item {
+    padding:12px 10px; border-radius:6px; cursor:pointer;
+    transition:background 0.18s; margin-bottom:2px;
+    border:1px solid transparent;
+  }
+  .list-item:hover { background:rgba(232,48,122,0.07); border-color:rgba(232,48,122,0.15); }
+  .list-item.active {
+    background:rgba(232,48,122,0.12);
+    border-color:rgba(232,48,122,0.3);
+  }
+  .list-item-name { font-size:13px; font-weight:500; color:var(--text-primary); line-height:1.4; }
+  .list-item-meta { font-size:11px; color:var(--text-secondary); margin-top:3px; letter-spacing:0.04em; }
+  .list-item.active .list-item-name { color:var(--rose); }
 
-    #project-count {
-      font-size: 12px;
-      color: rgba(232,228,220,0.45);
-      letter-spacing: 0.08em;
-      pointer-events: auto;
-    }
+  /* ── 地图 ── */
+  #map {
+    position:fixed;
+    left:var(--sidebar-w); top:0; right:0; bottom:0;
+    z-index:0;
+    transition:right 0.38s cubic-bezier(0.4,0,0.2,1);
+  }
+  #map.panel-open { right:var(--panel-w); }
 
-    /* ── 自定义 marker ── */
-    .custom-marker {
-      position: relative;
-      cursor: pointer;
-    }
+  /* ── 玫红方块 marker ── */
+  .sq-marker {
+    width:10px; height:10px;
+    background:var(--rose);
+    border:1.5px solid rgba(232,48,122,0.4);
+    border-radius:2px;
+    cursor:pointer;
+    position:relative;
+    transition:transform 0.2s;
+  }
+  .sq-marker::after {
+    content:'';
+    position:absolute;
+    inset:-4px;
+    border:1.5px solid var(--rose);
+    border-radius:3px;
+    opacity:0;
+    transform:scale(0.7);
+    transition:opacity 0.25s, transform 0.25s;
+  }
+  .sq-marker:hover { transform:scale(1.3); }
+  .sq-marker:hover::after { opacity:0.5; transform:scale(1.5); }
 
-    .marker-dot {
-      width: 12px;
-      height: 12px;
-      background: #c8a96e;
-      border: 2px solid rgba(200,169,110,0.3);
-      border-radius: 50%;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+  /* pulse 动效（active） */
+  @keyframes sq-pulse {
+    0%   { box-shadow:0 0 0 0 var(--rose-glow); }
+    70%  { box-shadow:0 0 0 10px rgba(232,48,122,0); }
+    100% { box-shadow:0 0 0 0 rgba(232,48,122,0); }
+  }
+  .sq-marker.active {
+    background:#ff4d9e;
+    animation:sq-pulse 1.4s ease-out infinite;
+    transform:scale(1.4);
+  }
 
-    .marker-dot:hover {
-      transform: scale(1.4);
-      box-shadow: 0 0 0 6px rgba(200,169,110,0.15);
-    }
+  /* ── 右侧项目详情面板 ── */
+  #panel {
+    position:fixed; right:0; top:0; bottom:0; width:var(--panel-w);
+    background:#111;
+    border-left:1px solid var(--border);
+    z-index:200;
+    transform:translateX(100%);
+    transition:transform 0.38s cubic-bezier(0.4,0,0.2,1);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  #panel.open { transform:translateX(0); }
 
-    .marker-dot.active {
-      background: #e8c97e;
-      transform: scale(1.5);
-      box-shadow: 0 0 0 8px rgba(232,201,126,0.2);
-    }
+  /* 图片轮播 */
+  #slider-wrap {
+    position:relative; width:100%; flex-shrink:0;
+    background:#000; overflow:hidden;
+  }
+  #slider-track {
+    display:flex;
+    transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .slide-img {
+    width:var(--panel-w); flex-shrink:0;
+    aspect-ratio:16/9; object-fit:cover; display:block; opacity:0.88;
+  }
+  .slider-btn {
+    position:absolute; top:50%; transform:translateY(-50%);
+    background:rgba(0,0,0,0.55); border:none; color:#fff;
+    width:32px; height:32px; border-radius:50%; cursor:pointer;
+    font-size:14px; display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s; z-index:5;
+  }
+  .slider-btn:hover { background:rgba(232,48,122,0.7); }
+  #btn-prev { left:10px; }
+  #btn-next { right:10px; }
+  #slider-dots {
+    position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+    display:flex; gap:6px;
+  }
+  .dot {
+    width:5px; height:5px; border-radius:50%;
+    background:rgba(255,255,255,0.35); cursor:pointer;
+    transition:background 0.2s, transform 0.2s;
+  }
+  .dot.active { background:var(--rose); transform:scale(1.3); }
 
-    .marker-city {
-      position: absolute;
-      top: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
-      font-size: 10px;
-      color: rgba(232,228,220,0.6);
-      letter-spacing: 0.06em;
-      pointer-events: none;
-    }
+  /* 面板内容 */
+  #panel-content { flex:1; overflow-y:auto; padding:24px 28px 32px; }
+  #panel-content::-webkit-scrollbar { width:3px; }
+  #panel-content::-webkit-scrollbar-thumb { background:var(--border); }
 
-    /* ── 项目卡片面板 ── */
-    #panel {
-      position: fixed;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 380px;
-      background: rgba(14,14,14,0.96);
-      border-left: 1px solid rgba(232,228,220,0.08);
-      z-index: 200;
-      transform: translateX(100%);
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+  #panel-type {
+    font-size:10px; letter-spacing:0.18em; color:var(--rose);
+    text-transform:uppercase; margin-bottom:8px;
+  }
+  #panel-name { font-size:24px; font-weight:600; line-height:1.25; color:var(--text-primary); margin-bottom:6px; }
+  #panel-info { font-size:12px; color:var(--text-secondary); letter-spacing:0.06em; margin-bottom:20px; }
 
-    #panel.open {
-      transform: translateX(0);
-    }
+  .panel-divider { width:28px; height:1.5px; background:var(--rose); opacity:0.5; margin-bottom:20px; border-radius:1px; }
 
-    #panel-image {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      display: block;
-      opacity: 0.85;
-    }
+  #panel-desc { font-size:14px; line-height:1.9; color:rgba(240,236,228,0.72); }
 
-    #panel-image-placeholder {
-      width: 100%;
-      height: 220px;
-      background: #1a1a1a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(232,228,220,0.2);
-      font-size: 13px;
-    }
+  #panel-close {
+    position:absolute; top:14px; right:14px;
+    width:30px; height:30px; background:rgba(0,0,0,0.6);
+    border:none; border-radius:50%; color:rgba(240,236,228,0.6);
+    font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s, color 0.2s; z-index:10;
+  }
+  #panel-close:hover { background:var(--rose-dim); color:#fff; }
 
-    #panel-body {
-      padding: 28px 28px 24px;
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    #panel-type {
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      color: #c8a96e;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    #panel-name {
-      font-size: 22px;
-      font-weight: 600;
-      line-height: 1.3;
-      color: #f0ece4;
-      margin-bottom: 6px;
-    }
-
-    #panel-meta {
-      font-size: 12px;
-      color: rgba(232,228,220,0.35);
-      letter-spacing: 0.06em;
-      margin-bottom: 20px;
-    }
-
-    #panel-divider {
-      width: 24px;
-      height: 1px;
-      background: rgba(200,169,110,0.4);
-      margin-bottom: 20px;
-    }
-
-    #panel-desc {
-      font-size: 14px;
-      line-height: 1.85;
-      color: rgba(232,228,220,0.7);
-    }
-
-    #panel-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 32px;
-      height: 32px;
-      background: rgba(0,0,0,0.5);
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      color: rgba(232,228,220,0.6);
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s, color 0.2s;
-      z-index: 10;
-    }
-
-    #panel-close:hover {
-      background: rgba(200,169,110,0.2);
-      color: #e8e4dc;
-    }
-
-    /* ── 底部提示 ── */
-    #hint {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      color: rgba(232,228,220,0.25);
-      z-index: 100;
-      pointer-events: none;
-      transition: opacity 0.5s;
-    }
-
-    /* ── Leaflet 覆盖 ── */
-    .leaflet-control-zoom {
-      border: none !important;
-      box-shadow: none !important;
-    }
-    .leaflet-control-zoom a {
-      background: rgba(20,20,20,0.9) !important;
-      color: rgba(232,228,220,0.6) !important;
-      border: 1px solid rgba(232,228,220,0.1) !important;
-      width: 28px !important;
-      height: 28px !important;
-      line-height: 26px !important;
-      font-size: 14px !important;
-    }
-    .leaflet-control-zoom a:hover {
-      background: rgba(200,169,110,0.2) !important;
-      color: #e8e4dc !important;
-    }
-    .leaflet-control-attribution {
-      background: rgba(0,0,0,0.4) !important;
-      color: rgba(255,255,255,0.2) !important;
-      font-size: 9px !important;
-    }
-    .leaflet-control-attribution a { color: rgba(255,255,255,0.25) !important; }
-  </style>
+  /* Leaflet overrides */
+  .leaflet-control-zoom { border:none!important; box-shadow:none!important; }
+  .leaflet-control-zoom a {
+    background:rgba(14,14,14,0.9)!important; color:rgba(240,236,228,0.5)!important;
+    border:1px solid var(--border)!important;
+    width:28px!important; height:28px!important; line-height:26px!important;
+  }
+  .leaflet-control-zoom a:hover { background:rgba(232,48,122,0.2)!important; color:#fff!important; }
+  .leaflet-control-attribution {
+    background:rgba(0,0,0,0.4)!important; color:rgba(255,255,255,0.18)!important; font-size:9px!important;
+  }
+  .leaflet-control-attribution a { color:rgba(255,255,255,0.2)!important; }
+</style>
 </head>
 <body>
 
-<!-- 地图容器 -->
+<!-- 左侧列表 -->
+<aside id="sidebar">
+  <div id="sidebar-head">
+    <div id="logo">TEKUMA</div>
+    <div id="tagline">Project Distribution</div>
+  </div>
+  <div id="project-list"></div>
+</aside>
+
+<!-- 地图 -->
 <div id="map"></div>
 
-<!-- 顶部品牌栏 -->
-<header id="header">
-  <div id="brand">
-    <div id="logo-mark">YS</div>
-    <div id="brand-name">YOUR STUDIO</div>
-  </div>
-  <div id="project-count">— 项目地图</div>
-</header>
-
-<!-- 项目卡片面板 -->
+<!-- 右侧详情面板 -->
 <div id="panel">
   <button id="panel-close" onclick="closePanel()">✕</button>
-  <img id="panel-image" src="" alt="项目图片">
-  <div id="panel-body">
+
+  <div id="slider-wrap">
+    <div id="slider-track"></div>
+    <button class="slider-btn" id="btn-prev" onclick="slide(-1)">&#8249;</button>
+    <button class="slider-btn" id="btn-next" onclick="slide(1)">&#8250;</button>
+    <div id="slider-dots"></div>
+  </div>
+
+  <div id="panel-content">
     <div id="panel-type"></div>
     <div id="panel-name"></div>
-    <div id="panel-meta"></div>
-    <div id="panel-divider"></div>
+    <div id="panel-info"></div>
+    <div class="panel-divider"></div>
     <div id="panel-desc"></div>
   </div>
 </div>
 
-<!-- 底部提示 -->
-<div id="hint">点击地图上的点位查看项目详情</div>
-
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-  // ── 初始化地图 ──
-  const map = L.map('map', {
-    center: [35.5, 110],
-    zoom: 5,
-    zoomControl: true,
-    attributionControl: true
-  });
-
-  // 深色底图（CartoDB Dark Matter）
+  // ── 地图初始化 ──
+  const map = L.map('map', { center:[33, 112], zoom:5, zoomControl:true });
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap © CARTO',
-    subdomains: 'abcd',
-    maxZoom: 18
+    attribution:'© OpenStreetMap © CARTO', subdomains:'abcd', maxZoom:18
   }).addTo(map);
 
-  // ── 加载项目数据 ──
   let activeMarkerEl = null;
+  let currentSlide = 0;
+  let currentImages = [];
+  let activeListItem = null;
 
-  fetch('projects.json')
-    .then(r => r.json())
-    .then(projects => {
-      document.getElementById('project-count').textContent = `— ${projects.length} 个项目`;
-
-      projects.forEach(p => {
-        // 自定义 marker HTML
-        const icon = L.divIcon({
-          className: '',
-          html: `
-            <div class="custom-marker">
-              <div class="marker-dot" id="dot-${p.id}"></div>
-              <div class="marker-city">${p.city}</div>
-            </div>`,
-          iconSize: [12, 12],
-          iconAnchor: [6, 6]
-        });
-
-        const marker = L.marker([p.lat, p.lng], { icon }).addTo(map);
-
-        marker.on('click', () => {
-          // 重置上一个 active marker
-          if (activeMarkerEl) activeMarkerEl.classList.remove('active');
-          const dot = document.getElementById(`dot-${p.id}`);
-          dot.classList.add('active');
-          activeMarkerEl = dot;
-
-          openPanel(p);
-
-          // 地图平移，让点位偏左（为右侧面板留空间）
-          map.panTo([p.lat, p.lng - 3], { animate: true, duration: 0.5 });
-        });
-      });
-    })
-    .catch(() => {
-      console.warn('无法加载 projects.json，请确保文件与 index.html 在同一目录');
+  // ── 加载数据 ──
+  fetch('projects.json').then(r => r.json()).then(projects => {
+    // 按年份分组
+    const byYear = {};
+    projects.forEach(p => {
+      if (!byYear[p.year]) byYear[p.year] = [];
+      byYear[p.year].push(p);
     });
 
-  // ── 面板开关 ──
+    const list = document.getElementById('project-list');
+    const years = Object.keys(byYear).sort((a,b) => b - a);
+
+    years.forEach(y => {
+      const grp = document.createElement('div');
+      grp.className = 'year-group';
+      grp.innerHTML = `<div class="year-label">${y}</div>`;
+
+      byYear[y].forEach(p => {
+        // 列表项
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.id = `item-${p.id}`;
+        item.innerHTML = `
+          <div class="list-item-name">${p.name}</div>
+          <div class="list-item-meta">${p.city} · ${p.type}</div>`;
+        item.onclick = () => selectProject(p, item);
+        grp.appendChild(item);
+
+        // Marker
+        const icon = L.divIcon({
+          className:'',
+          html:`<div class="sq-marker" id="dot-${p.id}"></div>`,
+          iconSize:[10,10], iconAnchor:[5,5]
+        });
+        const marker = L.marker([p.lat, p.lng], { icon }).addTo(map);
+        marker.on('click', () => selectProject(p, document.getElementById(`item-${p.id}`)));
+      });
+
+      list.appendChild(grp);
+    });
+  });
+
+  // ── 选中项目 ──
+  function selectProject(p, listItem) {
+    // 列表高亮
+    if (activeListItem) activeListItem.classList.remove('active');
+    listItem.classList.add('active');
+    activeListItem = listItem;
+    listItem.scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+    // Marker 高亮
+    if (activeMarkerEl) activeMarkerEl.classList.remove('active');
+    const dot = document.getElementById(`dot-${p.id}`);
+    if (dot) { dot.classList.add('active'); activeMarkerEl = dot; }
+
+    // 地图移动（偏左让出右侧面板空间）
+    map.panTo([p.lat, p.lng - 4], { animate:true, duration:0.45 });
+
+    // 填充面板
+    openPanel(p);
+  }
+
+  // ── 面板 ──
   function openPanel(p) {
     document.getElementById('panel-type').textContent = p.type;
     document.getElementById('panel-name').textContent = p.name;
-    document.getElementById('panel-meta').textContent = `${p.city}  ·  ${p.year}`;
+    document.getElementById('panel-info').textContent = `${p.city}  ·  ${p.year}`;
     document.getElementById('panel-desc').textContent = p.description;
 
-    const img = document.getElementById('panel-image');
-    if (p.image) {
-      img.src = p.image;
-      img.style.display = 'block';
-    } else {
-      img.style.display = 'none';
-    }
+    // 图片轮播
+    currentImages = p.images || (p.image ? [p.image] : []);
+    currentSlide = 0;
+    buildSlider();
 
     document.getElementById('panel').classList.add('open');
-    document.getElementById('hint').style.opacity = '0';
+    document.getElementById('map').classList.add('panel-open');
   }
 
   function closePanel() {
     document.getElementById('panel').classList.remove('open');
-    if (activeMarkerEl) {
-      activeMarkerEl.classList.remove('active');
-      activeMarkerEl = null;
-    }
-    document.getElementById('hint').style.opacity = '1';
+    document.getElementById('map').classList.remove('panel-open');
+    if (activeMarkerEl) { activeMarkerEl.classList.remove('active'); activeMarkerEl = null; }
+    if (activeListItem) { activeListItem.classList.remove('active'); activeListItem = null; }
   }
 
-  // 点击地图空白处关闭面板
+  // ── 轮播 ──
+  function buildSlider() {
+    const track = document.getElementById('slider-track');
+    const dots  = document.getElementById('slider-dots');
+    const panelW = getComputedStyle(document.documentElement).getPropertyValue('--panel-w').trim();
+
+    track.innerHTML = '';
+    dots.innerHTML  = '';
+
+    currentImages.forEach((src, i) => {
+      const img = document.createElement('img');
+      img.className = 'slide-img';
+      img.src = src;
+      img.alt = `项目图片 ${i+1}`;
+      track.appendChild(img);
+
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => goSlide(i);
+      dots.appendChild(dot);
+    });
+
+    // 只有多图才显示按钮
+    const multi = currentImages.length > 1;
+    document.getElementById('btn-prev').style.display = multi ? '' : 'none';
+    document.getElementById('btn-next').style.display = multi ? '' : 'none';
+
+    goSlide(0);
+  }
+
+  function slide(dir) {
+    goSlide((currentSlide + dir + currentImages.length) % currentImages.length);
+  }
+
+  function goSlide(i) {
+    currentSlide = i;
+    const panelPx = document.getElementById('panel').offsetWidth;
+    document.getElementById('slider-track').style.transform = `translateX(-${i * panelPx}px)`;
+    document.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
+  }
+
+  // 点地图空白关闭
   map.on('click', closePanel);
 </script>
 </body>
