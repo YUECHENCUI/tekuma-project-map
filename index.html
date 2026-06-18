@@ -82,20 +82,20 @@
     border-radius:2px;
     cursor:pointer;
     position:relative;
-    transition:transform 0.2s;
+    transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);
   }
   .sq-marker::after {
     content:'';
     position:absolute;
-    inset:-4px;
+    inset:-5px;
     border:1.5px solid var(--rose);
-    border-radius:3px;
+    border-radius:2px;
     opacity:0;
-    transform:scale(0.7);
-    transition:opacity 0.25s, transform 0.25s;
+    transition:opacity 0.25s, transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    transform:rotate(0deg);
   }
-  .sq-marker:hover { transform:scale(1.3); }
-  .sq-marker:hover::after { opacity:0.5; transform:scale(1.5); }
+  .sq-marker:hover { transform:rotate(45deg); }
+  .sq-marker:hover::after { opacity:0.45; transform:rotate(45deg); }
 
   /* pulse 动效（active） */
   @keyframes sq-pulse {
@@ -109,14 +109,13 @@
     transform:scale(1.4);
   }
 
-  /* ── 右侧项目详情面板 ── */
+  /* ── 右侧项目详情面板（全屏） ── */
   #panel {
-    position:fixed; right:0; top:0; bottom:0; width:var(--panel-w);
+    position:fixed; inset:0;
     background:#111;
-    border-left:1px solid var(--border);
-    z-index:200;
+    z-index:400;
     transform:translateX(100%);
-    transition:transform 0.38s cubic-bezier(0.4,0,0.2,1);
+    transition:transform 0.42s cubic-bezier(0.4,0,0.2,1);
     display:flex; flex-direction:column; overflow:hidden;
   }
   #panel.open { transform:translateX(0); }
@@ -131,7 +130,7 @@
     transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
   }
   .slide-img {
-    width:var(--panel-w); flex-shrink:0;
+    width:100vw; flex-shrink:0;
     aspect-ratio:16/9; object-fit:cover; display:block; opacity:0.88;
   }
   .slider-btn {
@@ -172,13 +171,14 @@
   #panel-desc { font-size:14px; line-height:1.9; color:rgba(240,236,228,0.72); }
 
   #panel-close {
-    position:absolute; top:14px; right:14px;
-    width:30px; height:30px; background:rgba(0,0,0,0.6);
-    border:none; border-radius:50%; color:rgba(240,236,228,0.6);
-    font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:background 0.2s, color 0.2s; z-index:10;
+    position:fixed; top:20px; right:24px;
+    width:36px; height:36px; background:rgba(0,0,0,0.7);
+    border:1px solid var(--border); border-radius:50%;
+    color:rgba(240,236,228,0.7); font-size:15px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s, color 0.2s; z-index:410;
   }
-  #panel-close:hover { background:var(--rose-dim); color:#fff; }
+  #panel-close:hover { background:var(--rose); color:#fff; border-color:var(--rose); }
 
   /* Leaflet overrides */
   .leaflet-control-zoom { border:none!important; box-shadow:none!important; }
@@ -316,12 +316,10 @@
     buildSlider();
 
     document.getElementById('panel').classList.add('open');
-    document.getElementById('map').classList.add('panel-open');
   }
 
   function closePanel() {
     document.getElementById('panel').classList.remove('open');
-    document.getElementById('map').classList.remove('panel-open');
     if (activeMarkerEl) { activeMarkerEl.classList.remove('active'); activeMarkerEl = null; }
     if (activeListItem) { activeListItem.classList.remove('active'); activeListItem = null; }
   }
@@ -362,8 +360,8 @@
 
   function goSlide(i) {
     currentSlide = i;
-    const panelPx = document.getElementById('panel').offsetWidth;
-    document.getElementById('slider-track').style.transform = `translateX(-${i * panelPx}px)`;
+    const w = window.innerWidth;
+    document.getElementById('slider-track').style.transform = `translateX(-${i * w}px)`;
     document.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
   }
 
